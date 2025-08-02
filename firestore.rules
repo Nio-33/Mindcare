@@ -1,0 +1,252 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions for authentication and authorization
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(resource) {
+      return request.auth.uid == resource.data.user_id;
+    }
+    
+    function isOwnerField(field) {
+      return request.auth.uid == field;
+    }
+    
+    function isValidUser() {
+      return isAuthenticated() && 
+             request.auth.token.email_verified == true;
+    }
+    
+    function isTherapist() {
+      return isAuthenticated() && 
+             request.auth.token.therapist == true;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.admin == true;
+    }
+    
+    // User profiles - users can only access their own profile
+    match /user_profiles/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.user_id == userId;
+    }
+    
+    // Mood entries - users can only access their own mood data
+    match /mood_entries/{entryId} {
+      allow read, write: if isAuthenticated() && isOwner(resource);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'mood', 'intensity', 'timestamp']);
+    }
+    
+    // Therapy journal entries - highly sensitive, strict access control
+    match /therapy_journal/{entryId} {
+      allow read, write: if isAuthenticated() && isOwner(resource);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'title', 'content', 'timestamp']) &&
+                       // Ensure sensitive fields are handled properly
+                       (request.resource.data.is_encrypted == true || 
+                        request.resource.data.sharing_permission == 'private');
+      
+      // Prevent sharing sensitive journal entries
+      allow update: if isAuthenticated() && 
+                       isOwner(resource) &&
+                       // Don't allow changing ownership
+                       request.resource.data.user_id == resource.data.user_id &&
+                       // Maintain encryption for sensitive content
+                       (request.resource.data.is_encrypted == true || 
+                        resource.data.is_encrypted != true);
+    }
+    
+    // Gratitude entries - users can access their own entries
+    match /gratitude_entries/{entryId} {
+      allow read, write: if isAuthenticated() && isOwner(resource);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'content', 'timestamp']);
+    }
+    
+    // Medication logs - sensitive health data, strict access control
+    match /medication_logs/{logId} {
+      allow read, write: if isAuthenticated() && isOwner(resource);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'medication_name', 'dosage', 'timestamp']);
+    }
+    
+    // Session notes - therapy session data, restricted access
+    match /session_notes/{noteId} {
+      allow read: if isAuthenticated() && 
+                     (isOwner(resource) || isTherapist());
+      allow write: if isAuthenticated() && 
+                      (isOwner(resource) || isTherapist()) &&
+                      isOwnerField(request.resource.data.user_id);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'therapist_name', 'session_date']);
+    }
+    
+    // Thought patterns - CBT data, user access only
+    match /thought_patterns/{patternId} {
+      allow read, write: if isAuthenticated() && isOwner(resource);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'journal_entry_id', 'automatic_thought']);
+    }
+    
+    // Wellness dashboards - personalized wellness data
+    match /wellness_dashboards/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.user_id == userId;
+    }
+    
+    // Community posts - public with moderation controls
+    match /community_posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'title', 'content', 'timestamp']) &&
+                       // Content moderation - no inappropriate content
+                       !request.resource.data.content.matches('.*\\b(spam|inappropriate)\\b.*');
+      allow update: if isAuthenticated() && 
+                       isOwner(resource) &&
+                       // Don't allow changing ownership or timestamp
+                       request.resource.data.user_id == resource.data.user_id &&
+                       request.resource.data.timestamp == resource.data.timestamp;
+      allow delete: if isAuthenticated() && 
+                       (isOwner(resource) || isAdmin());
+    }
+    
+    // Community comments - nested under posts
+    match /community_posts/{postId}/comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'content', 'timestamp']);
+      allow update: if isAuthenticated() && isOwner(resource);
+      allow delete: if isAuthenticated() && 
+                       (isOwner(resource) || isAdmin());
+    }
+    
+    // Support groups - community feature with membership control
+    match /support_groups/{groupId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.created_by) &&
+                       request.resource.data.keys().hasAll(['name', 'description', 'created_by']);
+      allow update: if isAuthenticated() && 
+                       (request.auth.uid == resource.data.created_by || isAdmin());
+      allow delete: if isAuthenticated() && 
+                       (request.auth.uid == resource.data.created_by || isAdmin());
+      
+      // Group memberships
+      match /members/{userId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && 
+                        request.auth.uid == userId;
+      }
+      
+      // Group messages
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && 
+                       exists(/databases/$(database)/documents/support_groups/$(groupId)/members/$(request.auth.uid));
+        allow create: if isAuthenticated() && 
+                         exists(/databases/$(database)/documents/support_groups/$(groupId)/members/$(request.auth.uid)) &&
+                         isOwnerField(request.resource.data.user_id);
+        allow update: if isAuthenticated() && isOwner(resource);
+        allow delete: if isAuthenticated() && 
+                         (isOwner(resource) || isAdmin());
+      }
+    }
+    
+    // Learning resources - public read, admin write
+    match /learning_resources/{resourceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // Resource categories
+    match /resource_categories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // Therapists - public read for verified therapists, restricted write
+    match /therapists/{therapistId} {
+      allow read: if isAuthenticated() && 
+                     resource.data.is_active == true && 
+                     resource.data.is_verified == true;
+      allow create: if isTherapist() && 
+                       request.resource.data.keys().hasAll(['name', 'title', 'license_number', 'specializations']);
+      allow update: if isAuthenticated() && 
+                       (request.auth.uid == therapistId || isAdmin()) &&
+                       // Don't allow changing verification status without admin
+                       (request.resource.data.is_verified == resource.data.is_verified || isAdmin());
+    }
+    
+    // Therapy appointments - patient and therapist access
+    match /therapy_appointments/{appointmentId} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == resource.data.user_id || 
+                      request.auth.uid == resource.data.therapist_id);
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'therapist_id', 'scheduled_date_time']);
+      allow update: if isAuthenticated() && 
+                       (request.auth.uid == resource.data.user_id || 
+                        request.auth.uid == resource.data.therapist_id) &&
+                       // Don't allow changing core appointment details
+                       request.resource.data.user_id == resource.data.user_id &&
+                       request.resource.data.therapist_id == resource.data.therapist_id;
+    }
+    
+    // Therapist reviews - public read, restricted write
+    match /therapist_reviews/{reviewId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       isOwnerField(request.resource.data.user_id) &&
+                       request.resource.data.keys().hasAll(['user_id', 'therapist_id', 'rating']) &&
+                       request.resource.data.rating >= 1 && 
+                       request.resource.data.rating <= 5;
+      allow update: if isAuthenticated() && isOwner(resource);
+      allow delete: if isAuthenticated() && 
+                       (isOwner(resource) || isAdmin());
+    }
+    
+    // Crisis resources - public read, admin write
+    match /crisis_resources/{resourceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // Analytics and usage data - admin only for privacy
+    match /analytics/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Admin functions - admin only
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Audit logs - admin read only
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      // Logs are created by server-side functions only
+    }
+    
+    // Default deny rule for any unlisted collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidImageFile() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    function isValidDocumentFile() {
+      return request.resource.contentType in ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'] &&
+             request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+    
+    function isValidAudioFile() {
+      return request.resource.contentType.matches('audio/.*') &&
+             request.resource.size < 50 * 1024 * 1024; // 50MB limit
+    }
+    
+    // User profile images
+    match /profile_images/{userId}/{imageId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      isOwner(userId) && 
+                      isValidImageFile();
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Journal attachments - private to user only
+    match /journal_attachments/{userId}/{attachmentId} {
+      allow read, write: if isAuthenticated() && 
+                            isOwner(userId) && 
+                            (isValidImageFile() || isValidDocumentFile() || isValidAudioFile());
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Community post images - public read, owner write
+    match /community_images/{userId}/{imageId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      isOwner(userId) && 
+                      isValidImageFile();
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Therapist profile images - public read for verified therapists
+    match /therapist_images/{therapistId}/{imageId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      isOwner(therapistId) && 
+                      isValidImageFile();
+      allow delete: if isAuthenticated() && isOwner(therapistId);
+    }
+    
+    // Learning resource media - public read, admin write
+    match /learning_resources/{resourceId}/{mediaId} {
+      allow read: if isAuthenticated();
+      // Admin write would be handled by server-side functions
+    }
+    
+    // Crisis resource media - public read, admin write
+    match /crisis_resources/{resourceId}/{mediaId} {
+      allow read: if isAuthenticated();
+      // Admin write would be handled by server-side functions
+    }
+    
+    // Temporary uploads - user specific, auto-delete after 24 hours
+    match /temp_uploads/{userId}/{uploadId} {
+      allow read, write: if isAuthenticated() && 
+                            isOwner(userId) && 
+                            (isValidImageFile() || isValidDocumentFile() || isValidAudioFile());
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Backup exports - user specific, encrypted data
+    match /user_exports/{userId}/{exportId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // System files - admin only
+    match /system/{allPaths=**} {
+      allow read, write: if request.auth.token.admin == true;
+    }
+    
+    // Default deny rule
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
