@@ -29,17 +29,25 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    await authProvider.signInWithEmailAndPassword(
+    final success = await authProvider.signInWithEmailAndPassword(
       _emailController.text.trim(),
       _passwordController.text,
     );
 
-    // No manual navigation needed - AuthGuard will handle the state change automatically
+    // AuthGuard will automatically handle navigation when authentication state changes
+    if (success) {
+      // Clear any error states and ensure UI updates
+      if (mounted) {
+        // The AuthGuard in app.dart will automatically show the home page
+        // when authProvider.state becomes AuthState.authenticated
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

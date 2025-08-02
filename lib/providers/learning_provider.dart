@@ -349,8 +349,10 @@ class LearningProvider extends ChangeNotifier {
 
   // Load mock data for testing
   void loadMockData() {
-    _featuredModules = [
+    // Create comprehensive learning modules
+    final mockModules = [
       LearningModule(
+        id: 'anxiety-basics',
         title: 'Understanding Anxiety',
         description: 'Learn about anxiety disorders, their symptoms, and evidence-based treatment approaches.',
         category: LearningCategory.anxiety,
@@ -365,19 +367,20 @@ class LearningProvider extends ChangeNotifier {
         content: [
           LearningContent(
             title: 'What is Anxiety?',
-            content: 'Anxiety is a normal human emotion that everyone experiences from time to time...',
+            content: 'Anxiety is a normal human emotion that everyone experiences from time to time. However, when anxiety becomes persistent, excessive, and interferes with daily life, it may indicate an anxiety disorder. Understanding the difference between normal anxiety and anxiety disorders is crucial for seeking appropriate help.',
             type: ContentType.article,
             order: 1,
           ),
           LearningContent(
             title: 'Types of Anxiety Disorders',
-            content: 'There are several types of anxiety disorders, each with unique characteristics...',
+            content: 'There are several types of anxiety disorders, including Generalized Anxiety Disorder (GAD), Panic Disorder, Social Anxiety Disorder, and Specific Phobias. Each has unique characteristics but shares common features of excessive fear and worry.',
             type: ContentType.article,
             order: 2,
           ),
         ],
       ),
       LearningModule(
+        id: 'mindful-breathing',
         title: 'Mindful Breathing Techniques',
         description: 'Practical breathing exercises to reduce stress and increase mindfulness.',
         category: LearningCategory.mindfulness,
@@ -392,13 +395,20 @@ class LearningProvider extends ChangeNotifier {
         content: [
           LearningContent(
             title: '4-7-8 Breathing',
-            content: 'This technique involves breathing in for 4 counts, holding for 7, and exhaling for 8...',
+            content: 'This technique involves breathing in for 4 counts, holding for 7, and exhaling for 8. It activates the parasympathetic nervous system and promotes relaxation.',
             type: ContentType.exercise,
             order: 1,
+          ),
+          LearningContent(
+            title: 'Box Breathing',
+            content: 'Also known as square breathing, this technique involves equal counts for inhaling, holding, exhaling, and holding again. Try 4 counts for each phase.',
+            type: ContentType.exercise,
+            order: 2,
           ),
         ],
       ),
       LearningModule(
+        id: 'cognitive-restructuring',
         title: 'Cognitive Restructuring Basics',
         description: 'Learn to identify and challenge negative thought patterns using CBT techniques.',
         category: LearningCategory.cbt,
@@ -413,25 +423,99 @@ class LearningProvider extends ChangeNotifier {
         content: [
           LearningContent(
             title: 'Identifying Thought Patterns',
-            content: 'The first step in cognitive restructuring is becoming aware of automatic thoughts...',
+            content: 'The first step in cognitive restructuring is becoming aware of automatic thoughts. These are the immediate thoughts that pop into your mind in response to situations.',
             type: ContentType.article,
             order: 1,
           ),
           LearningContent(
             title: 'Thought Record Worksheet',
-            content: 'Use this worksheet to track and analyze your thoughts throughout the day...',
+            content: 'Use this worksheet to track and analyze your thoughts throughout the day. Record the situation, your automatic thought, emotions, and evidence for/against the thought.',
             type: ContentType.worksheet,
             order: 2,
           ),
         ],
       ),
+      LearningModule(
+        id: 'stress-management',
+        title: 'Effective Stress Management',
+        description: 'Discover proven strategies for managing stress in daily life.',
+        category: LearningCategory.stress,
+        type: ContentType.article,
+        difficulty: Difficulty.beginner,
+        estimatedMinutes: 20,
+        authorId: 'expert4',
+        authorName: 'Dr. Lisa Park',
+        rating: 4.6,
+        ratingCount: 298,
+        tags: ['stress', 'coping', 'management'],
+        content: [
+          LearningContent(
+            title: 'Understanding Stress Response',
+            content: 'Stress is your body\'s natural response to challenges. Learning to recognize stress signals early can help you manage them more effectively.',
+            type: ContentType.article,
+            order: 1,
+          ),
+        ],
+      ),
+      LearningModule(
+        id: 'sleep-hygiene',
+        title: 'Better Sleep Habits',
+        description: 'Improve your sleep quality with evidence-based sleep hygiene practices.',
+        category: LearningCategory.sleep,
+        type: ContentType.exercise,
+        difficulty: Difficulty.beginner,
+        estimatedMinutes: 15,
+        authorId: 'expert5',
+        authorName: 'Dr. Robert Kim',
+        rating: 4.8,
+        ratingCount: 167,
+        tags: ['sleep', 'hygiene', 'rest'],
+        content: [
+          LearningContent(
+            title: 'Creating a Sleep Routine',
+            content: 'Establishing consistent bedtime and wake-up times helps regulate your circadian rhythm for better sleep quality.',
+            type: ContentType.exercise,
+            order: 1,
+          ),
+        ],
+      ),
+      LearningModule(
+        id: 'self-compassion',
+        title: 'Practicing Self-Compassion',
+        description: 'Learn to treat yourself with kindness and understanding.',
+        category: LearningCategory.selfCare,
+        type: ContentType.exercise,
+        difficulty: Difficulty.intermediate,
+        estimatedMinutes: 18,
+        authorId: 'expert6',
+        authorName: 'Dr. Emma Thompson',
+        rating: 4.9,
+        ratingCount: 145,
+        tags: ['self-care', 'compassion', 'kindness'],
+        content: [
+          LearningContent(
+            title: 'The Three Components of Self-Compassion',
+            content: 'Self-compassion involves mindfulness, common humanity, and self-kindness. These three components work together to create a healthier relationship with yourself.',
+            type: ContentType.article,
+            order: 1,
+          ),
+        ],
+      ),
     ];
 
+    // Set featured modules (first 3)
+    _featuredModules = mockModules.take(3).toList();
+    
+    // Set all modules
+    _allModules = mockModules;
+
+    // Create learning paths
     _learningPaths = [
       LearningPath(
+        id: 'anxiety-mastery',
         title: 'Anxiety Mastery Path',
         description: 'A comprehensive journey through understanding and managing anxiety.',
-        moduleIds: ['mod1', 'mod2', 'mod3'],
+        moduleIds: ['anxiety-basics', 'mindful-breathing', 'cognitive-restructuring'],
         category: LearningCategory.anxiety,
         difficulty: Difficulty.beginner,
         estimatedHours: 2,
@@ -439,14 +523,26 @@ class LearningProvider extends ChangeNotifier {
         authorName: 'Dr. Sarah Johnson',
       ),
       LearningPath(
+        id: 'mindfulness-foundation',
         title: 'Mindfulness Foundation',
         description: 'Build a strong foundation in mindfulness and meditation practices.',
-        moduleIds: ['mod2', 'mod4', 'mod5'],
+        moduleIds: ['mindful-breathing', 'stress-management', 'self-compassion'],
         category: LearningCategory.mindfulness,
         difficulty: Difficulty.beginner,
         estimatedHours: 3,
         authorId: 'expert2',
         authorName: 'Maria Rodriguez, LCSW',
+      ),
+      LearningPath(
+        id: 'wellness-basics',
+        title: 'Wellness Fundamentals',
+        description: 'Essential skills for mental health and well-being.',
+        moduleIds: ['stress-management', 'sleep-hygiene', 'self-compassion'],
+        category: LearningCategory.general,
+        difficulty: Difficulty.beginner,
+        estimatedHours: 2,
+        authorId: 'expert4',
+        authorName: 'Dr. Lisa Park',
       ),
     ];
 

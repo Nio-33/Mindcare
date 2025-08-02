@@ -31,6 +31,23 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void _init() {
+    // Check initial auth state immediately
+    final currentUser = _auth.currentUser;
+    if (currentUser != null) {
+      _user = currentUser;
+      _state = AuthState.authenticated;
+      _loadUserProfile();
+      if (kDebugMode) {
+        print('AuthProvider: Initial user found: ${currentUser.uid}');
+      }
+    } else {
+      _state = AuthState.unauthenticated;
+      if (kDebugMode) {
+        print('AuthProvider: No initial user found');
+      }
+    }
+    
+    // Listen for auth state changes
     _auth.authStateChanges().listen((User? user) {
       if (kDebugMode) {
         print('AuthProvider: Auth state changed - user = ${user?.uid}, previous state = $_state');
@@ -40,6 +57,10 @@ class AuthProvider extends ChangeNotifier {
       _user = user;
       
       if (user != null) {
+        // Only clear error message if transitioning from error state
+        if (_state == AuthState.error) {
+          _errorMessage = null;
+        }
         _state = AuthState.authenticated;
         _loadUserProfile();
         if (kDebugMode) {
@@ -47,9 +68,12 @@ class AuthProvider extends ChangeNotifier {
         }
       } else {
         _userProfile = null;
-        _state = AuthState.unauthenticated;
+        // Only set to unauthenticated if not in an error state
+        if (_state != AuthState.error) {
+          _state = AuthState.unauthenticated;
+        }
         if (kDebugMode) {
-          print('AuthProvider: State changed from $previousState to unauthenticated');
+          print('AuthProvider: State changed from $previousState to ${_state}');
         }
       }
       
@@ -110,20 +134,46 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      // Add timeout to prevent infinite loading
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('Sign in timed out. Please check your internet connection and try again.');
+        },
       );
 
       if (credential.user != null) {
-        // Update last login
-        if (_userProfile != null) {
-          _userProfile = _userProfile!.copyWith(lastLogin: DateTime.now());
-          await _saveUserProfile();
+        if (kDebugMode) {
+          print('Sign in successful for user: ${credential.user!.uid}');
         }
+        
+        // Wait a moment for authStateChanges to update, then ensure state is correct
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // If still in loading state after delay, manually update
+        if (_state == AuthState.loading) {
+          _user = credential.user;
+          _state = AuthState.authenticated;
+          _loadUserProfile();
+          notifyListeners();
+          if (kDebugMode) {
+            print('Manually updated state to authenticated after sign in');
+          }
+        }
+        
         return true;
+      } else {
+        if (kDebugMode) {
+          print('Sign in failed: credential.user is null');
+        }
+        _state = AuthState.error;
+        _errorMessage = 'Sign in failed. Please try again.';
+        notifyListeners();
+        return false;
       }
-      return false;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         print('FirebaseAuthException: ${e.code} - ${e.message}');
@@ -136,7 +186,9 @@ class AuthProvider extends ChangeNotifier {
       if (kDebugMode) {
         print('Unexpected error during sign in: $e');
       }
-      _errorMessage = 'An unexpected error occurred. Please check your internet connection and try again.';
+      _errorMessage = e.toString().contains('timed out') 
+          ? 'Sign in timed out. Please check your internet connection and try again.'
+          : 'An unexpected error occurred. Please check your internet connection and try again.';
       _state = AuthState.error;
       notifyListeners();
       return false;
@@ -156,9 +208,15 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      // Add timeout to prevent infinite loading
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('Sign up timed out. Please check your internet connection and try again.');
+        },
       );
 
       if (credential.user != null) {
@@ -184,9 +242,29 @@ class AuthProvider extends ChangeNotifier {
           // Even if profile creation fails, authentication was successful
         }
 
-        // State will be updated automatically by authStateChanges() listener
+        // Wait a moment for authStateChanges to update, then ensure state is correct
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // If still in loading state after delay, manually update
+        if (_state == AuthState.loading) {
+          _user = credential.user;
+          _state = AuthState.authenticated;
+          if (_userProfile == null) {
+            _userProfile = UserProfile(
+              id: credential.user!.uid,
+              email: email,
+              fullName: fullName,
+              lastLogin: DateTime.now(),
+            );
+          }
+          notifyListeners();
+          if (kDebugMode) {
+            print('Manually updated state to authenticated after sign up');
+          }
+        }
+
         if (kDebugMode) {
-          print('Sign up successful, waiting for authStateChanges() to update state');
+          print('Sign up successful, state = $_state');
         }
         return true;
       } else {
@@ -210,7 +288,9 @@ class AuthProvider extends ChangeNotifier {
       if (kDebugMode) {
         print('Unexpected error during sign up: $e');
       }
-      _errorMessage = 'An unexpected error occurred. Please check your internet connection and try again.';
+      _errorMessage = e.toString().contains('timed out') 
+          ? 'Sign up timed out. Please check your internet connection and try again.'
+          : 'An unexpected error occurred. Please check your internet connection and try again.';
       _state = AuthState.error;
       notifyListeners();
       return false;

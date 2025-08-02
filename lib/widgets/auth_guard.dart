@@ -59,7 +59,7 @@ class _LoadingScreenState extends State<_LoadingScreen> {
   void initState() {
     super.initState();
     // Add a timeout to prevent infinite loading
-    Future.delayed(const Duration(seconds: 10), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         final authProvider = context.read<AuthProvider>();
         if (authProvider.state == AuthState.loading || authProvider.state == AuthState.initial) {
