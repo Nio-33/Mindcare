@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../constants/colors.dart';
 import '../../providers/community_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/community_models.dart';
 import 'support_group_card.dart';
 import 'community_post_card.dart';
 import 'create_post_dialog.dart';
@@ -91,9 +90,9 @@ class _CommunityInterfaceState extends State<CommunityInterface> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withOpacity(0.1),
+                    color: AppColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -159,9 +158,9 @@ class _CommunityInterfaceState extends State<CommunityInterface> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
+                      color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                      border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
@@ -278,7 +277,7 @@ class _CommunityInterfaceState extends State<CommunityInterface> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -372,7 +371,7 @@ class _CommunityInterfaceState extends State<CommunityInterface> {
                     Icon(
                       Icons.forum_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.5),
+                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(

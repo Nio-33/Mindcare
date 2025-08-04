@@ -21,6 +21,7 @@ class AppColors {
   static const Color textTertiary = Color(0xFFA0A4B8);
   
   // 🌈 Accent Colors (Emotions & Highlights)
+  static const Color accent = Color(0xFFB49FCC); // Muted Purple (Primary accent)
   static const Color accentYellow = Color(0xFFFFEB99); // Warm Yellow
   static const Color accentOrange = Color(0xFFFFAA7B); // Sunset Orange
   static const Color accentPurple = Color(0xFFB49FCC); // Muted Purple
@@ -133,7 +134,7 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 3,
-      shadowColor: AppColors.primary.withOpacity(0.1),
+      shadowColor: AppColors.primary.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -165,7 +166,7 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: AppColors.darkSurface,
       elevation: 3,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),

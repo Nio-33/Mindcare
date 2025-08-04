@@ -8,12 +8,12 @@ class TherapyJournalProvider extends ChangeNotifier {
 
   List<TherapyJournalEntry> _entries = [];
   List<GratitudeEntry> _gratitudeEntries = [];
-  List<MedicationLog> _medicationLogs = [];
-  List<SessionNote> _sessionNotes = [];
-  List<ThoughtPattern> _thoughtPatterns = [];
+  final List<MedicationLog> _medicationLogs = [];
+  final List<SessionNote> _sessionNotes = [];
+  final List<ThoughtPattern> _thoughtPatterns = [];
   
   TherapyJournalEntry? _selectedEntry;
-  Map<String, dynamic> _journalStatistics = {};
+  final Map<String, dynamic> _journalStatistics = {};
   
   bool _isLoading = false;
   String? _errorMessage;

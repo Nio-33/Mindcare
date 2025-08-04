@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/colors.dart';
 import '../../models/learning_models.dart';
+import '../../providers/learning_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class ModuleDetailView extends StatelessWidget {
   final LearningModule module;
@@ -69,7 +72,7 @@ class ModuleDetailView extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       _getCategoryColor(module.category),
-                      _getCategoryColor(module.category).withOpacity(0.8),
+                      _getCategoryColor(module.category).withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -85,7 +88,7 @@ class ModuleDetailView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -101,7 +104,7 @@ class ModuleDetailView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -161,9 +164,9 @@ class ModuleDetailView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.1),
+                        color: AppColors.secondary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +309,7 @@ class ModuleDetailView extends StatelessWidget {
                         (tag) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.secondary.withOpacity(0.2),
+                            color: AppColors.secondary.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -335,7 +338,6 @@ class ModuleDetailView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     ...module.content.asMap().entries.map((entry) {
-                      final index = entry.key;
                       final content = entry.value;
                       final isCompleted = progress?.completedContentIds.contains(content.id) ?? false;
                       
@@ -347,8 +349,8 @@ class ModuleDetailView extends StatelessWidget {
                             leading: CircleAvatar(
                               radius: 16,
                               backgroundColor: isCompleted
-                                  ? AppColors.success.withOpacity(0.2)
-                                  : _getContentTypeColor(content.type).withOpacity(0.2),
+                                  ? AppColors.success.withValues(alpha: 0.2)
+                                  : _getContentTypeColor(content.type).withValues(alpha: 0.2),
                               child: Icon(
                                 isCompleted
                                     ? Icons.check
@@ -389,25 +391,38 @@ class ModuleDetailView extends StatelessWidget {
                   // Action button
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Start or continue module
+                    child: Consumer2<LearningProvider, AuthProvider>(
+                      builder: (context, learningProvider, authProvider, child) {
+                        return ElevatedButton(
+                          onPressed: authProvider.isAuthenticated
+                              ? () => _handleStartLearning(context, learningProvider, authProvider)
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _getCategoryColor(module.category),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: learningProvider.isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  progress == null || progress!.completionPercentage == 0
+                                      ? 'Start Learning'
+                                      : progress!.completionPercentage >= 100
+                                          ? 'Review Content'
+                                          : 'Continue Learning',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _getCategoryColor(module.category),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Text(
-                        progress == null || progress!.completionPercentage == 0
-                            ? 'Start Learning'
-                            : progress!.completionPercentage >= 100
-                                ? 'Review Content'
-                                : 'Continue Learning',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ),
                   
@@ -419,6 +434,60 @@ class ModuleDetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _handleStartLearning(BuildContext context, LearningProvider learningProvider, AuthProvider authProvider) async {
+    final userId = authProvider.user?.uid;
+    if (userId == null) return;
+
+    try {
+      if (progress == null || progress!.completionPercentage == 0) {
+        // Start learning from the beginning
+        await learningProvider.startLearning(userId, module.id);
+        
+        // Show success message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Started learning "${module.title}"'),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        // Continue learning or review content
+        learningProvider.continueLearning();
+        
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                progress!.completionPercentage >= 100
+                    ? 'Reviewing "${module.title}"'
+                    : 'Continuing "${module.title}"'
+              ),
+              backgroundColor: AppColors.primary,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+      
+      // Track time spent
+      learningProvider.trackTimeSpent(userId, module.id, 1);
+      
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Color _getCategoryColor(LearningCategory category) {

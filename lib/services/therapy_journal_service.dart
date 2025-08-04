@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import '../models/therapy_journal.dart';
 
 class TherapyJournalService {
@@ -10,8 +8,6 @@ class TherapyJournalService {
 
   // Simple encryption for demo - in production use proper encryption
   String _encryptContent(String content, String userId) {
-    final bytes = utf8.encode(content + userId);
-    final digest = sha256.convert(bytes);
     return base64.encode(utf8.encode(content));
   }
 
@@ -523,7 +519,7 @@ class TherapyJournalService {
 
       // Calculate statistics
       final totalEntries = entries.length;
-      final totalWords = entries.fold<int>(0, (sum, entry) => sum + entry.wordCount);
+      final totalWords = entries.fold<int>(0, (total, entry) => total + entry.wordCount);
       final averageWordsPerEntry = totalEntries > 0 ? totalWords / totalEntries : 0;
       
       final entriesByType = <String, int>{};

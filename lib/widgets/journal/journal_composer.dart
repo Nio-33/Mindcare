@@ -39,7 +39,7 @@ class _JournalComposerState extends State<JournalComposer> {
       _entryType = widget.entry!.type;
       _isPrivate = widget.entry!.isPrivate;
       _isEncrypted = widget.entry!.isEncrypted;
-      _tags = widget.entry!.tags ?? [];
+      _tags = widget.entry!.tags;
     }
   }
 
@@ -179,9 +179,9 @@ class _JournalComposerState extends State<JournalComposer> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppColors.error.withOpacity(0.1),
+                              color: AppColors.error.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                              border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                             ),
                             child: Row(
                               children: [

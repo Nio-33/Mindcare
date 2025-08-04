@@ -56,10 +56,10 @@ class JournalEntryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getTypeColor(entry.type).withOpacity(0.1),
+                  color: _getTypeColor(entry.type).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _getTypeColor(entry.type).withOpacity(0.3),
+                    color: _getTypeColor(entry.type).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(

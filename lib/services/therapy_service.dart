@@ -146,8 +146,8 @@ class TherapyService {
     if (currentScore.anxiety > 60) {
       specializations.add(TherapistSpecialization.anxiety);
       approaches.addAll([
-        TherapyApproach.cognitive_behavioral_therapy,
-        TherapyApproach.mindfulness_based,
+        TherapyApproach.cognitiveBehavioralTherapy,
+        TherapyApproach.mindfulnessBased,
       ]);
     }
 
@@ -155,8 +155,8 @@ class TherapyService {
     if (currentScore.mood < 40) {
       specializations.add(TherapistSpecialization.depression);
       approaches.addAll([
-        TherapyApproach.cognitive_behavioral_therapy,
-        TherapyApproach.dialectical_behavior_therapy,
+        TherapyApproach.cognitiveBehavioralTherapy,
+        TherapyApproach.dialecticalBehaviorTherapy,
       ]);
     }
 
@@ -164,7 +164,7 @@ class TherapyService {
     for (final insight in insights) {
       if (insight.category == 'risk' && insight.severity == 'high') {
         specializations.add(TherapistSpecialization.general);
-        approaches.add(TherapyApproach.cognitive_behavioral_therapy);
+        approaches.add(TherapyApproach.cognitiveBehavioralTherapy);
       }
       
       if (insight.title.toLowerCase().contains('trauma')) {
@@ -189,7 +189,7 @@ class TherapyService {
     // Default to general if no specific needs identified
     if (specializations.isEmpty) {
       specializations.add(TherapistSpecialization.general);
-      approaches.add(TherapyApproach.cognitive_behavioral_therapy);
+      approaches.add(TherapyApproach.cognitiveBehavioralTherapy);
     }
 
     return {
@@ -349,7 +349,7 @@ class TherapyService {
             .map((doc) => TherapistReview.fromMap(doc.data()))
             .toList();
 
-        final totalRating = reviews.fold<int>(0, (sum, review) => sum + review.rating);
+        final totalRating = reviews.fold<int>(0, (total, review) => total + review.rating);
         final averageRating = totalRating / reviews.length;
 
         await _firestore

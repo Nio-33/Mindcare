@@ -134,9 +134,9 @@ class AIInsightsSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: trendColor.withOpacity(0.1),
+        color: trendColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: trendColor.withOpacity(0.3)),
+        border: Border.all(color: trendColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -190,9 +190,9 @@ class AIInsightsSummary extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -254,7 +254,7 @@ class AIInsightsSummary extends StatelessWidget {
                 height: 18,
                 margin: const EdgeInsets.only(top: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.2),
+                  color: AppColors.secondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Icon(
@@ -286,9 +286,9 @@ class AIInsightsSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.textTertiary.withOpacity(0.05),
+        color: AppColors.textTertiary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.textTertiary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

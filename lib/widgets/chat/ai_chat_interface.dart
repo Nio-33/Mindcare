@@ -4,7 +4,6 @@ import '../../constants/colors.dart';
 import '../../providers/ai_therapy_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/wellness_dashboard_provider.dart';
-import '../../models/chat_message.dart';
 import 'ai_chat_message.dart';
 import 'chat_input.dart';
 import 'suggested_responses.dart';
@@ -151,7 +150,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.05),
+        color: AppColors.primary.withValues(alpha: 0.05),
         border: Border(
           bottom: BorderSide(color: AppColors.divider, width: 1),
         ),
@@ -313,9 +312,9 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.1),
+        color: AppColors.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

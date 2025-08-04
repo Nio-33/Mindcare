@@ -217,7 +217,7 @@ class SettingsScreen extends StatelessWidget {
               
               // Sign Out Button
               Card(
-                color: AppColors.error.withOpacity(0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 child: ListTile(
                   leading: Icon(Icons.logout, color: AppColors.error),
                   title: Text(

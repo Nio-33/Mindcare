@@ -92,7 +92,7 @@ class _MoodPickerState extends State<MoodPicker> {
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: _getMoodColor(_selectedMood!),
                   thumbColor: _getMoodColor(_selectedMood!),
-                  overlayColor: _getMoodColor(_selectedMood!).withOpacity(0.2),
+                  overlayColor: _getMoodColor(_selectedMood!).withValues(alpha: 0.2),
                   inactiveTrackColor: AppColors.divider,
                 ),
                 child: Slider(
@@ -180,7 +180,7 @@ class _MoodButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? color : AppColors.divider,

@@ -17,7 +17,7 @@ class TherapyJournalScreen extends StatefulWidget {
 }
 
 class _TherapyJournalScreenState extends State<TherapyJournalScreen> {
-  bool _showComposer = false;
+  final bool _showComposer = false;
   TherapyJournalEntry? _editingEntry;
 
   @override

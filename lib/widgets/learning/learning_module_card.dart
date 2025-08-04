@@ -32,7 +32,7 @@ class LearningModuleCard extends StatelessWidget {
             Container(
               height: 120,
               decoration: BoxDecoration(
-                color: _getCategoryColor(module.category).withOpacity(0.1),
+                color: _getCategoryColor(module.category).withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
@@ -45,7 +45,7 @@ class LearningModuleCard extends StatelessWidget {
                     child: Icon(
                       _getCategoryIcon(module.category),
                       size: 48,
-                      color: _getCategoryColor(module.category).withOpacity(0.7),
+                      color: _getCategoryColor(module.category).withValues(alpha: 0.7),
                     ),
                   ),
                   
@@ -120,7 +120,7 @@ class LearningModuleCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getContentTypeColor(module.type).withOpacity(0.1),
+                            color: _getContentTypeColor(module.type).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -136,7 +136,7 @@ class LearningModuleCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getDifficultyColor(module.difficulty).withOpacity(0.1),
+                            color: _getDifficultyColor(module.difficulty).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

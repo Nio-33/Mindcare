@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/colors.dart';
@@ -20,11 +21,14 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _searchController = TextEditingController();
+  bool _hasSearchText = false;
+  Timer? _searchTimer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _searchController.addListener(_onSearchChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeLearning();
     });
@@ -33,21 +37,44 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _searchTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final hasText = _searchController.text.isNotEmpty;
+    if (hasText != _hasSearchText) {
+      setState(() {
+        _hasSearchText = hasText;
+      });
+    }
+  }
+
+  void _onSearchTextChanged(String query) {
+    // Cancel previous timer
+    _searchTimer?.cancel();
+    
+    // Start new timer for debounced search
+    _searchTimer = Timer(const Duration(milliseconds: 500), () {
+      final learningProvider = context.read<LearningProvider>();
+      if (query.trim().isEmpty) {
+        learningProvider.loadModules();
+      } else {
+        learningProvider.searchModules(query);
+      }
+    });
   }
 
   void _initializeLearning() {
     final learningProvider = context.read<LearningProvider>();
     final authProvider = context.read<AuthProvider>();
     
-    // Load mock data for testing
-    learningProvider.loadMockData();
-    
-    // In production, you would load real data:
-    // learningProvider.loadFeaturedModules();
-    // learningProvider.loadModules();
-    // learningProvider.loadLearningPaths();
+    // Load real data
+    learningProvider.loadFeaturedModules();
+    learningProvider.loadModules();
+    learningProvider.loadLearningPaths();
     
     if (authProvider.isAuthenticated) {
       // learningProvider.loadUserProgress(authProvider.user!.uid);
@@ -69,9 +96,9 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
 
         return CustomScrollView(
           slivers: [
-            // App bar with search
+            // App bar with title only
             SliverAppBar(
-              expandedHeight: 160,
+              expandedHeight: 120,
               floating: false,
               pinned: true,
               backgroundColor: AppColors.primary,
@@ -86,37 +113,68 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
                       colors: [AppColors.primary, AppColors.primaryDark],
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search for topics, techniques, or resources...',
-                        hintStyle: const TextStyle(color: Colors.white70),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.white70),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  learningProvider.loadModules();
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            
+            // Search bar as separate sliver
+            SliverToBoxAdapter(
+              child: Container(
+                color: AppColors.primary,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search for topics, techniques, or resources...',
+                          hintStyle: const TextStyle(color: Colors.white70),
+                          suffixIcon: _hasSearchText
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.white70),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    final learningProvider = context.read<LearningProvider>();
+                                    learningProvider.loadModules();
+                                  },
+                                )
+                              : null,
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.2),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        style: const TextStyle(color: Colors.white),
+                        onChanged: _onSearchTextChanged,
+                        onSubmitted: (query) {
+                          final learningProvider = context.read<LearningProvider>();
+                          learningProvider.searchModules(query);
+                        },
                       ),
-                      style: const TextStyle(color: Colors.white),
-                      onSubmitted: (query) {
-                        learningProvider.searchModules(query);
-                      },
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          final learningProvider = context.read<LearningProvider>();
+                          final query = _searchController.text.trim();
+                          if (query.isNotEmpty) {
+                            learningProvider.searchModules(query);
+                          }
+                        },
+                        icon: const Icon(Icons.search, color: Colors.white),
+                        iconSize: 24,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -291,9 +349,9 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -336,7 +394,7 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
                     Icon(
                       Icons.library_books_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.5),
+                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -397,9 +455,9 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
+              color: AppColors.secondary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+              border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -511,7 +569,7 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
                     Icon(
                       Icons.school_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.5),
+                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -577,7 +635,7 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
                     Icon(
                       Icons.route_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.5),
+                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -626,7 +684,7 @@ class _LearningCenterInterfaceState extends State<LearningCenterInterface>
       label: Text(label),
       deleteIcon: const Icon(Icons.close, size: 16),
       onDeleted: onRemove,
-      backgroundColor: AppColors.primary.withOpacity(0.1),
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
       labelStyle: TextStyle(color: AppColors.primary),
       deleteIconColor: AppColors.primary,
     );

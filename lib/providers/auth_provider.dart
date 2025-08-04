@@ -73,7 +73,7 @@ class AuthProvider extends ChangeNotifier {
           _state = AuthState.unauthenticated;
         }
         if (kDebugMode) {
-          print('AuthProvider: State changed from $previousState to ${_state}');
+          print('AuthProvider: State changed from $previousState to $_state');
         }
       }
       
@@ -249,14 +249,12 @@ class AuthProvider extends ChangeNotifier {
         if (_state == AuthState.loading) {
           _user = credential.user;
           _state = AuthState.authenticated;
-          if (_userProfile == null) {
-            _userProfile = UserProfile(
-              id: credential.user!.uid,
-              email: email,
-              fullName: fullName,
-              lastLogin: DateTime.now(),
-            );
-          }
+          _userProfile ??= UserProfile(
+            id: credential.user!.uid,
+            email: email,
+            fullName: fullName,
+            lastLogin: DateTime.now(),
+          );
           notifyListeners();
           if (kDebugMode) {
             print('Manually updated state to authenticated after sign up');

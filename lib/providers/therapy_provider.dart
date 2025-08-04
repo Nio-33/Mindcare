@@ -356,7 +356,7 @@ class TherapyProvider extends ChangeNotifier {
         title: 'Licensed Clinical Psychologist',
         licenseNumber: 'PSY123456',
         specializations: [TherapistSpecialization.anxiety, TherapistSpecialization.depression],
-        approaches: [TherapyApproach.cognitive_behavioral_therapy, TherapyApproach.mindfulness_based],
+        approaches: [TherapyApproach.cognitiveBehavioralTherapy, TherapyApproach.mindfulnessBased],
         sessionFormats: [SessionFormat.individual],
         bio: 'Dr. Johnson specializes in anxiety and depression treatment with over 10 years of experience. She uses evidence-based approaches to help clients develop coping strategies.',
         rating: 4.8,

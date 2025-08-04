@@ -99,11 +99,13 @@ class InterventionsCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: priorityColor.withOpacity(0.1),
+        color: priorityColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.left(
-          color: priorityColor,
-          width: 4,
+        border: Border(
+          left: BorderSide(
+            color: priorityColor,
+            width: 4,
+          ),
         ),
       ),
       child: Row(
@@ -112,7 +114,7 @@ class InterventionsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: priorityColor.withOpacity(0.2),
+              color: priorityColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(

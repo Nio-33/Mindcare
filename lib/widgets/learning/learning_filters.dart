@@ -89,7 +89,7 @@ class _LearningFiltersState extends State<LearningFilters> {
                     _selectedCategory = selected ? category : null;
                   });
                 },
-                selectedColor: _getCategoryColor(category).withOpacity(0.2),
+                selectedColor: _getCategoryColor(category).withValues(alpha: 0.2),
                 checkmarkColor: _getCategoryColor(category),
                 labelStyle: TextStyle(
                   color: isSelected ? _getCategoryColor(category) : AppColors.textSecondary,
@@ -137,7 +137,7 @@ class _LearningFiltersState extends State<LearningFilters> {
                     _selectedContentType = selected ? type : null;
                   });
                 },
-                selectedColor: _getContentTypeColor(type).withOpacity(0.2),
+                selectedColor: _getContentTypeColor(type).withValues(alpha: 0.2),
                 checkmarkColor: _getContentTypeColor(type),
                 labelStyle: TextStyle(
                   color: isSelected ? _getContentTypeColor(type) : AppColors.textSecondary,
@@ -181,7 +181,7 @@ class _LearningFiltersState extends State<LearningFilters> {
                         _selectedDifficulty = selected ? difficulty : null;
                       });
                     },
-                    selectedColor: _getDifficultyColor(difficulty).withOpacity(0.2),
+                    selectedColor: _getDifficultyColor(difficulty).withValues(alpha: 0.2),
                     checkmarkColor: _getDifficultyColor(difficulty),
                     labelStyle: TextStyle(
                       color: isSelected ? _getDifficultyColor(difficulty) : AppColors.textSecondary,

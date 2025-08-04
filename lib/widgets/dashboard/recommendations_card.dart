@@ -107,10 +107,10 @@ class _RecommendationItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _getPriorityColor(recommendation.priority).withOpacity(0.1),
+        color: _getPriorityColor(recommendation.priority).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getPriorityColor(recommendation.priority).withOpacity(0.3),
+          color: _getPriorityColor(recommendation.priority).withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -122,7 +122,7 @@ class _RecommendationItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getPriorityColor(recommendation.priority).withOpacity(0.2),
+                  color: _getPriorityColor(recommendation.priority).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -269,7 +269,7 @@ class _PriorityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

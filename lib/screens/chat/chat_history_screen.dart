@@ -43,7 +43,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       
       // Try to load from Firebase if available
       try {
-        final realSessions = await chatProvider.userSessions;
+        final realSessions = chatProvider.userSessions;
         if (realSessions.isNotEmpty) {
           _sessions = realSessions;
         }
@@ -286,7 +286,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.success.withOpacity(0.1) : AppColors.textTertiary.withOpacity(0.1),
+                      color: isActive ? AppColors.success.withValues(alpha: 0.1) : AppColors.textTertiary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -412,9 +412,9 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.05),
+        color: AppColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

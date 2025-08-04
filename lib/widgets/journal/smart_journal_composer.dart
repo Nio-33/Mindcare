@@ -119,7 +119,7 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
     final prompts = _getPromptsForType(_selectedType);
     
     return Container(
-      color: AppColors.accent.withOpacity(0.1),
+      color: AppColors.accent.withValues(alpha: 0.1),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +198,7 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
                   _selectedPrompt = '';
                 });
               },
-              selectedColor: AppColors.primary.withOpacity(0.2),
+              selectedColor: AppColors.primary.withValues(alpha: 0.2),
               checkmarkColor: AppColors.primary,
             );
           }).toList(),
@@ -272,7 +272,7 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
                   }
                 });
               },
-              selectedColor: AppColors.secondary.withOpacity(0.2),
+              selectedColor: AppColors.secondary.withValues(alpha: 0.2),
               checkmarkColor: AppColors.secondary,
             );
           }).toList(),
@@ -416,6 +416,20 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
           'Changes in my mood or energy',
           'Questions for my doctor',
         ];
+      case JournalEntryType.thoughtPattern:
+        return [
+          'Negative thoughts I\'ve noticed',
+          'Patterns in my thinking',
+          'Cognitive distortions I\'m working on',
+          'Alternative ways to think about this',
+        ];
+      case JournalEntryType.sessionNotes:
+        return [
+          'Key takeaways from today',
+          'Homework or action items',
+          'Progress on goals',
+          'Questions for next time',
+        ];
     }
   }
 
@@ -433,6 +447,10 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
         return 'Difficult moment...';
       case JournalEntryType.medication:
         return 'Medication log - ${DateTime.now().toString().substring(0, 10)}';
+      case JournalEntryType.thoughtPattern:
+        return 'Thought patterns - ${DateTime.now().toString().substring(0, 10)}';
+      case JournalEntryType.sessionNotes:
+        return 'Session notes - ${DateTime.now().toString().substring(0, 10)}';
     }
   }
 
@@ -450,6 +468,10 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
         return 'Express what you\'re going through. Remember, help is available...';
       case JournalEntryType.medication:
         return 'Note any effects, side effects, or changes you\'ve noticed...';
+      case JournalEntryType.thoughtPattern:
+        return 'Explore your thought patterns and cognitive habits...';
+      case JournalEntryType.sessionNotes:
+        return 'Document key insights and takeaways from your session...';
     }
   }
 
@@ -467,6 +489,10 @@ class _SmartJournalComposerState extends State<SmartJournalComposer> {
         return 'Crisis';
       case JournalEntryType.progress:
         return 'Progress';
+      case JournalEntryType.thoughtPattern:
+        return 'Thought Pattern';
+      case JournalEntryType.sessionNotes:
+        return 'Session Notes';
     }
   }
 

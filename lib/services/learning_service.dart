@@ -400,4 +400,30 @@ class LearningService {
       }
     }
   }
+
+  // Create initial user progress record
+  Future<void> createUserProgress(String userId, String moduleId) async {
+    try {
+      final existingProgress = await getModuleProgress(userId, moduleId);
+      
+      if (existingProgress == null) {
+        final newProgress = UserProgress(
+          userId: userId,
+          moduleId: moduleId,
+          completedContentIds: [],
+          completionPercentage: 0,
+          timeSpentMinutes: 0,
+          startedAt: DateTime.now(),
+          lastAccessedAt: DateTime.now(),
+        );
+        
+        await updateUserProgress(newProgress);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating user progress: $e');
+      }
+      throw Exception('Failed to create user progress');
+    }
+  }
 }

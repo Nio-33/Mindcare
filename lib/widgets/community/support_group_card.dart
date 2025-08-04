@@ -40,7 +40,7 @@ class SupportGroupCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: _getGroupTypeColor(group.type).withOpacity(0.2),
+                      color: _getGroupTypeColor(group.type).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -75,7 +75,7 @@ class SupportGroupCard extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.warning.withOpacity(0.2),
+                                  color: AppColors.warning.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -121,7 +121,7 @@ class SupportGroupCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: _getGroupTypeColor(group.type).withOpacity(0.1),
+                                color: _getGroupTypeColor(group.type).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -177,7 +177,7 @@ class SupportGroupCard extends StatelessWidget {
                                   onPressed: () => onLeave(group.id),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.error,
-                                    side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                                    side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
                                     minimumSize: const Size(60, 28),
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                   ),

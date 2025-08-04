@@ -1,15 +1,17 @@
 import 'package:flutter/foundation.dart';
 import '../models/learning_models.dart';
 import '../services/learning_service.dart';
+import '../services/content_generation_service.dart';
 
 class LearningProvider extends ChangeNotifier {
   final LearningService _learningService = LearningService();
+  final ContentGenerationService _contentService = ContentGenerationService();
 
   List<LearningModule> _featuredModules = [];
   List<LearningModule> _allModules = [];
   List<LearningPath> _learningPaths = [];
   List<UserProgress> _userProgress = [];
-  Map<String, bool> _favoriteModules = {};
+  final Map<String, bool> _favoriteModules = {};
   
   LearningModule? _selectedModule;
   UserProgress? _currentProgress;
@@ -35,7 +37,7 @@ class LearningProvider extends ChangeNotifier {
   ContentType? get selectedContentType => _selectedContentType;
   Difficulty? get selectedDifficulty => _selectedDifficulty;
 
-  // Load featured modules
+  // Load featured modules - try Firebase first, then generate with AI
   Future<void> loadFeaturedModules() async {
     try {
       _isLoading = true;
@@ -43,6 +45,17 @@ class LearningProvider extends ChangeNotifier {
       notifyListeners();
 
       _featuredModules = await _learningService.getFeaturedModules();
+      
+      // If no featured modules found, generate some with AI
+      if (_featuredModules.isEmpty) {
+        if (kDebugMode) {
+          print('No featured modules found in Firebase, generating with AI...');
+        }
+        final generatedModules = await _contentService.generateLearningModules(
+          count: 4,
+        );
+        _featuredModules = generatedModules.take(4).toList();
+      }
       
       _isLoading = false;
       notifyListeners();
@@ -56,7 +69,7 @@ class LearningProvider extends ChangeNotifier {
     }
   }
 
-  // Load all modules with filters
+  // Load all modules with filters - try Firebase first, then generate with AI
   Future<void> loadModules({
     LearningCategory? category,
     ContentType? type,
@@ -67,11 +80,23 @@ class LearningProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      // Try to load from Firebase first
       _allModules = await _learningService.getLearningModules(
         category: category,
         type: type,
         difficulty: difficulty,
       );
+      
+      // If no modules found, generate them with AI
+      if (_allModules.isEmpty) {
+        if (kDebugMode) {
+          print('No modules found in Firebase, generating with AI...');
+        }
+        _allModules = await _contentService.generateLearningModules(
+          count: 8,
+          category: category,
+        );
+      }
       
       _isLoading = false;
       notifyListeners();
@@ -345,6 +370,64 @@ class LearningProvider extends ChangeNotifier {
         print('Error tracking time spent: $e');
       }
     }
+  }
+
+  // Start learning a module
+  Future<void> startLearning(String userId, String moduleId) async {
+    try {
+      // Create initial progress record if it doesn't exist
+      await _learningService.createUserProgress(userId, moduleId);
+      
+      // Refresh current progress
+      if (_selectedModule?.id == moduleId) {
+        _currentProgress = await _learningService.getModuleProgress(userId, moduleId);
+        notifyListeners();
+      }
+      
+      // Refresh user progress list
+      await loadUserProgress(userId);
+    } catch (e) {
+      _errorMessage = 'Failed to start learning: $e';
+      notifyListeners();
+      if (kDebugMode) {
+        print('Error starting learning: $e');
+      }
+    }
+  }
+
+  // Continue learning from current progress
+  void continueLearning() {
+    if (_currentProgress != null && _selectedModule != null) {
+      // Find next uncompleted content item
+      final nextContentIndex = _selectedModule!.content.indexWhere(
+        (content) => !_currentProgress!.completedContentIds.contains(content.id)
+      );
+      
+      if (nextContentIndex != -1) {
+        // TODO: Navigate to specific content item
+        if (kDebugMode) {
+          print('Continuing with content: ${_selectedModule!.content[nextContentIndex].title}');
+        }
+      }
+    }
+  }
+
+  // Get current learning content
+  LearningContent? getCurrentContent() {
+    if (_currentProgress != null && _selectedModule != null) {
+      // Find next uncompleted content item
+      final nextContentIndex = _selectedModule!.content.indexWhere(
+        (content) => !_currentProgress!.completedContentIds.contains(content.id)
+      );
+      
+      if (nextContentIndex != -1) {
+        return _selectedModule!.content[nextContentIndex];
+      } else if (_selectedModule!.content.isNotEmpty) {
+        // If all content is completed, return the first item
+        return _selectedModule!.content.first;
+      }
+    }
+    return null;
   }
 
   // Load mock data for testing

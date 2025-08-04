@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
-import '../../constants/colors.dart';
 import '../../models/therapy_journal.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/therapy_journal_provider.dart';

@@ -93,7 +93,7 @@ class AIChatMessage extends StatelessWidget {
                         _formatTimestamp(message.timestamp),
                         style: TextStyle(
                           color: isUser 
-                              ? Colors.white.withOpacity(0.7)
+                              ? Colors.white.withValues(alpha: 0.7)
                               : AppColors.textTertiary,
                           fontSize: 12,
                         ),
@@ -161,7 +161,7 @@ class AIChatMessage extends StatelessWidget {
     if (isUser) {
       return AppColors.primary;
     } else if (isCrisis) {
-      return AppColors.error.withOpacity(0.1);
+      return AppColors.error.withValues(alpha: 0.1);
     } else {
       return AppColors.surface;
     }

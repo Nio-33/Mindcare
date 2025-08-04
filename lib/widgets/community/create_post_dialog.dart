@@ -113,7 +113,7 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
                                 });
                               }
                             },
-                            selectedColor: _getPostTypeColor(type).withOpacity(0.2),
+                            selectedColor: _getPostTypeColor(type).withValues(alpha: 0.2),
                             checkmarkColor: _getPostTypeColor(type),
                             labelStyle: TextStyle(
                               color: isSelected ? _getPostTypeColor(type) : AppColors.textSecondary,
@@ -220,7 +220,7 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
                           children: _tags.map(
                             (tag) => Chip(
                               label: Text('#$tag'),
-                              backgroundColor: AppColors.secondary.withOpacity(0.2),
+                              backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
                               labelStyle: TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 12,

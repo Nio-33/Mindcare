@@ -32,7 +32,7 @@ class LearningPathCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: _getCategoryColor(path.category).withOpacity(0.2),
+                      color: _getCategoryColor(path.category).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -63,7 +63,7 @@ class LearningPathCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: _getCategoryColor(path.category).withOpacity(0.1),
+                                color: _getCategoryColor(path.category).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -80,7 +80,7 @@ class LearningPathCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: _getDifficultyColor(path.difficulty).withOpacity(0.1),
+                                color: _getDifficultyColor(path.difficulty).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(

@@ -33,7 +33,7 @@ class TherapistCard extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Icon(
@@ -129,7 +129,7 @@ class TherapistCard extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -226,7 +226,7 @@ class TherapistCard extends StatelessWidget {
         return 'Relationships';
       case TherapistSpecialization.grief:
         return 'Grief';
-      case TherapistSpecialization.eating_disorders:
+      case TherapistSpecialization.eatingDisorders:
         return 'Eating Disorders';
       case TherapistSpecialization.bipolar:
         return 'Bipolar';

@@ -225,7 +225,6 @@ class WellnessService {
     required List<TherapyJournalEntry> recentJournals,
   }) {
     List<WellnessInsight> insights = [];
-    final now = DateTime.now();
 
     // Trend Analysis
     if (historicalScores.length >= 2) {

@@ -7,21 +7,21 @@ enum TherapistSpecialization {
   addiction,
   relationships,
   grief,
-  eating_disorders,
+  eatingDisorders,
   bipolar,
   adhd,
   general,
 }
 
 enum TherapyApproach {
-  cognitive_behavioral_therapy,
-  dialectical_behavior_therapy,
+  cognitiveBehavioralTherapy,
+  dialecticalBehaviorTherapy,
   psychodynamic,
   humanistic,
-  mindfulness_based,
-  acceptance_commitment_therapy,
+  mindfulnessBased,
+  acceptanceCommitmentTherapy,
   emdr,
-  family_systems,
+  familySystems,
 }
 
 enum SessionFormat {
@@ -34,10 +34,10 @@ enum SessionFormat {
 enum AppointmentStatus {
   scheduled,
   confirmed,
-  in_progress,
+  inProgress,
   completed,
   cancelled,
-  no_show,
+  noShow,
 }
 
 class Therapist {

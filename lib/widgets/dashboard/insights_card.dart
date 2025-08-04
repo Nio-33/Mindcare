@@ -103,10 +103,10 @@ class _InsightItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _getSeverityColor(insight.severity).withOpacity(0.1),
+        color: _getSeverityColor(insight.severity).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _getSeverityColor(insight.severity).withOpacity(0.3),
+          color: _getSeverityColor(insight.severity).withValues(alpha: 0.3),
         ),
       ),
       child: Column(
